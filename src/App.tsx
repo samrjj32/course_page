@@ -6,7 +6,6 @@ import CourseDetails from './components/CourseDetails';
 import Testimonials from './components/Testimonials';
 import FAQ from './components/FAQ';
 import Footer from './components/Footer';
-import PaymentModal from './components/PaymentModal';
 
 function App() {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -28,7 +27,6 @@ function App() {
       <Testimonials />
       <FAQ />
       <Footer />
-      {isPaymentModalOpen && <PaymentModal onClose={closePaymentModal} />}
     </div>
   );
 }

@@ -10,34 +10,34 @@ const CountdownTimer: React.FC = () => {
   const renderer = ({ hours, minutes, seconds, completed }: { hours: number, minutes: number, seconds: number, completed: boolean }) => {
     if (completed) {
       return <span className="text-red-500 font-bold">Offer expired!</span>;
-    } else {
-      return (
-        <div className="flex justify-center">
-          <div className="flex space-x-4">
-            <div className="bg-gray-800 text-white p-3 rounded-lg">
-              <span className="text-2xl font-bold">{hours.toString().padStart(2, '0')}</span>
-              <p className="text-xs mt-1">HOURS</p>
-            </div>
-            <div className="bg-gray-800 text-white p-3 rounded-lg">
-              <span className="text-2xl font-bold">{minutes.toString().padStart(2, '0')}</span>
-              <p className="text-xs mt-1">MINUTES</p>
-            </div>
-            <div className="bg-gray-800 text-white p-3 rounded-lg">
-              <span className="text-2xl font-bold">{seconds.toString().padStart(2, '0')}</span>
-              <p className="text-xs mt-1">SECONDS</p>
-            </div>
-          </div>
-        </div>
-      );
     }
+
+    const timeUnits = [
+      { value: hours, label: 'Hours' },
+      { value: minutes, label: 'Minutes' },
+      { value: seconds, label: 'Seconds' }
+    ];
+
+    return (
+      <div className="bg-white rounded-xl shadow-sm p-4">
+        <h4 className="text-center text-gray-500 text-sm mb-4">Offer Ends In</h4>
+        <div className="flex justify-center space-x-4">
+          {timeUnits.map((unit, index) => (
+            <div key={index} className="flex flex-col items-center">
+              <div className="bg-blue-600 rounded-lg w-16 h-16 flex items-center justify-center mb-1">
+                <span className="text-2xl font-bold text-white">
+                  {String(unit.value).padStart(2, '0')}
+                </span>
+              </div>
+              <span className="text-xs text-gray-500">{unit.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
-  return (
-    <div className="mb-6">
-      <p className="text-lg font-semibold mb-2">Limited Time Offer Ends In:</p>
-      <Countdown date={countdownDate} renderer={renderer} />
-    </div>
-  );
+  return <Countdown date={countdownDate} renderer={renderer} />;
 };
 
 export default CountdownTimer;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, MessageCircle } from 'lucide-react';
 
 const FAQ: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -38,45 +38,66 @@ const FAQ: React.FC = () => {
   return (
     <section id="faq" className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Everything you need to know about the course and trading journey
+          </p>
+        </div>
         
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto space-y-4">
           {faqs.map((faq, index) => (
-            <div key={index} className="mb-4">
+            <div 
+              key={index} 
+              className={`bg-white rounded-xl overflow-hidden transition-all duration-200 ${
+                openIndex === index ? 'shadow-lg' : 'shadow-sm'
+              }`}
+            >
               <button
-                className={`w-full text-left p-4 rounded-lg flex justify-between items-center ${
-                  openIndex === index ? 'bg-orange-50 border-l-4 border-orange-500' : 'bg-white'
+                className={`w-full text-left p-6 flex justify-between items-center space-x-4 ${
+                  openIndex === index ? 'bg-blue-50' : 'hover:bg-gray-50'
                 }`}
                 onClick={() => toggleFaq(index)}
               >
-                <span className="font-bold text-lg">{faq.question}</span>
-                {openIndex === index ? (
-                  <ChevronUp className="h-5 w-5 text-orange-500" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-gray-500" />
-                )}
+                <span className="font-semibold text-gray-900">{faq.question}</span>
+                <span className={`flex-shrink-0 ${openIndex === index ? 'text-blue-600' : 'text-gray-400'}`}>
+                  {openIndex === index ? (
+                    <ChevronUp className="h-5 w-5" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5" />
+                  )}
+                </span>
               </button>
               
-              {openIndex === index && (
-                <div className="bg-white p-4 rounded-b-lg border-l-4 border-orange-500 mt-1">
-                  <p className="text-gray-700">{faq.answer}</p>
+              <div 
+                className={`transition-all duration-200 ${
+                  openIndex === index 
+                    ? 'max-h-96 opacity-100' 
+                    : 'max-h-0 opacity-0'
+                }`}
+              >
+                <div className="p-6 pt-0 text-gray-600">
+                  {faq.answer}
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>
         
         <div className="mt-12 text-center">
-          <p className="text-lg mb-6">Still have questions? We're here to help!</p>
-          <a 
-            href="mailto:support@stockmastery.com" 
-            className="inline-flex items-center text-orange-500 hover:text-orange-600 font-bold"
-          >
-            Contact our support team
-            <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-          </a>
+          <div className="inline-flex items-center justify-center space-x-2 text-blue-600 bg-blue-50 px-4 py-2 rounded-full">
+            <MessageCircle className="h-5 w-5" />
+            <span className="font-medium">Still have questions?</span>
+          </div>
+          <p className="mt-2 text-gray-600">
+            Email us at{' '}
+            <a 
+              href="mailto:support@stockmastery.com" 
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              support@stockmastery.com
+            </a>
+          </p>
         </div>
       </div>
     </section>

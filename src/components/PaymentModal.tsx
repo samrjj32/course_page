@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Shield } from 'lucide-react';
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 interface PaymentModalProps {
   onClose: () => void;
@@ -9,176 +15,184 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ onClose }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
-    businessStage: '',
-    revenueScale: ''
+    phone: ''
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  // Load Razorpay SDK
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // In a real implementation, this would integrate with Razorpay
-    // For now, we'll just simulate the payment flow
-    alert('This would open the Razorpay payment gateway in a real implementation.');
+    const res = await loadRazorpay();
     
-    // Normally, you would:
-    // 1. Send form data to your backend
-    // 2. Backend would create a Razorpay order
-    // 3. Return order ID to frontend
-    // 4. Open Razorpay checkout with the order ID
+    if (!res) {
+      alert('Razorpay SDK failed to load');
+      return;
+    }
+
+    // Razorpay options
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: 99 * 100, // amount in paisa
+      currency: "INR",
+      name: "StockMastery",
+      description: "StockMastery Course Purchase",
+      image: "https://your-logo-url.png", // Add your logo URL
+      prefill: {
+        name: formData.name,
+        email: formData.email,
+        contact: formData.phone,
+      },
+      theme: {
+        color: "#2563eb" // blue-600
+      },
+      handler: function(response: any) {
+        // Handle successful payment
+        console.log("Payment successful", response);
+        
+        // Show success message
+        alert("Payment successful! You'll receive an email with course details.");
+        
+        // Close the modal
+        onClose();
+        
+        // Optional: You can also redirect to a success page
+        // window.location.href = '/success';
+      },
+      modal: {
+        ondismiss: function() {
+          // Handle modal dismiss
+          console.log("Payment modal closed");
+          // Don't close the form modal here as payment might have been cancelled
+        },
+        escape: true, // Allow closing with Esc key
+        animation: true, // Enable animations
+        backdropClose: false // Prevent closing on backdrop click during payment
+      }
+    };
+
+    try {
+      const razorpay = new window.Razorpay(options);
+      razorpay.on('payment.failed', function(resp: any) {
+        // Handle payment failure
+        console.error('Payment failed:', resp.error);
+        alert('Payment failed. Please try again.');
+      });
+      razorpay.open();
+    } catch (error) {
+      console.error('Payment error:', error);
+      alert('Something went wrong. Please try again.');
+    }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div className="flex justify-between items-center p-4 border-b">
-          <div className="flex items-center">
-            <div className="bg-orange-500 rounded-full p-2 mr-2">
-              <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl w-full max-w-md relative">
+        {/* Close Button */}
+        <button 
+          onClick={onClose}
+          className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        {/* Modal Content */}
+        <div className="p-6">
+          {/* Header */}
+          <div className="text-center mb-6">
+            <div className="bg-blue-50 inline-flex rounded-full p-2 mb-2">
+              <Shield className="h-5 w-5 text-blue-600" />
             </div>
-            <h2 className="text-xl font-bold">Payment Details</h2>
+            <h3 className="text-xl font-bold text-gray-900">Secure Checkout</h3>
+            <p className="text-sm text-gray-500">Your information is protected by 256-bit SSL encryption</p>
           </div>
-          <button 
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-        
-        <div className="p-4">
-          <p className="text-gray-600 mb-4">
-            Complete your purchase by providing your payment details.
-          </p>
-          
-          <form onSubmit={handleSubmit}>
-            <div className="mb-6">
-              <h3 className="font-medium text-gray-700 mb-2">Billing information</h3>
-              
-              <div className="space-y-3">
-                <div>
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                </div>
-                
-                <div>
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                </div>
-                
-                <div className="flex">
-                  <div className="bg-gray-100 px-3 py-2 border border-gray-300 rounded-l-md flex items-center">
-                    <span className="flex items-center">
-                      <img src="https://flagcdn.com/w20/in.png" alt="India" className="mr-1" />
-                      +91
-                    </span>
-                  </div>
-                  <input
-                    type="tel"
-                    name="phone"
-                    placeholder="Phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                    pattern="[0-9]{10}"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                </div>
-                
-                <div>
-                  <select
-                    name="businessStage"
-                    value={formData.businessStage}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  >
-                    <option value="">What stage of trading you are at</option>
-                    <option value="beginner">Beginner (0-1 year)</option>
-                    <option value="intermediate">Intermediate (1-3 years)</option>
-                    <option value="advanced">Advanced (3+ years)</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <select
-                    name="revenueScale"
-                    value={formData.revenueScale}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  >
-                    <option value="">What is your monthly trading capital</option>
-                    <option value="small">₹10,000 - ₹50,000</option>
-                    <option value="medium">₹50,000 - ₹2,00,000</option>
-                    <option value="large">₹2,00,000+</option>
-                  </select>
-                </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Personal Information */}
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                Phone Number
+              </label>
+              <div className="flex">
+                <span className="inline-flex items-center px-3 border border-r-0 border-gray-300 rounded-l-lg bg-gray-50 text-gray-500 text-sm">
+                  +91
+                </span>
+                <input
+                  type="tel"
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
               </div>
             </div>
-            
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium text-gray-700">Have a coupon?</h3>
-                <button 
-                  type="button"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            
-            <div className="border-t border-dashed border-gray-300 my-4 pt-4">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="font-medium text-gray-700">Service</h3>
-              </div>
-              
-              <div className="flex justify-between items-center">
+
+            {/* Order Summary */}
+            <div className="bg-gray-50 p-4 rounded-lg space-y-1">
+              <div className="flex justify-between text-sm">
                 <span className="text-gray-600">StockMastery Course</span>
-                <div className="text-right">
-                  <span className="text-gray-400 line-through text-sm">₹4,999</span>
-                  <span className="text-gray-800 font-bold ml-2">₹99.00</span>
-                </div>
+                <span className="text-gray-400 line-through">₹4,999</span>
+              </div>
+              <div className="flex justify-between font-medium">
+                <span className="text-blue-600">Special Offer Price</span>
+                <span className="text-blue-600">₹99</span>
               </div>
             </div>
-            
+
+            {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-md transition-colors mt-4"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
             >
-              Proceed to pay ₹99.00
+              <span>Pay Securely</span>
+              <Shield className="h-4 w-4" />
             </button>
-            
-            <div className="flex justify-center space-x-4 mt-4">
+
+            {/* Payment Methods */}
+            <div className="flex justify-center space-x-4 pt-4 border-t">
               <img src="https://razorpay.com/assets/razorpay-glyph.svg" alt="Razorpay" className="h-6" />
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/1200px-Visa_Inc._logo.svg.png" alt="Visa" className="h-6" />
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1200px-Mastercard-logo.svg.png" alt="Mastercard" className="h-6" />
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1200px-UPI-Logo-vector.svg.png" alt="UPI" className="h-6" />
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/1200px-Paytm_Logo_%28standalone%29.svg.png" alt="Paytm" className="h-6" />
             </div>
           </form>
         </div>
@@ -187,4 +201,4 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ onClose }) => {
   );
 };
 
-export default PaymentModal;
+export default PaymentModal; 

@@ -1,88 +1,84 @@
-import React from 'react';
-import { Calendar, Clock, MapPin, Gift } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, Clock, MapPin, Shield, TrendingUp, Users, Target, Award } from 'lucide-react';
 import CountdownTimer from './CountdownTimer';
+import PaymentModal from './PaymentModal';
 
 interface HeroProps {
   onRegisterClick: () => void;
 }
 
 const Hero: React.FC<HeroProps> = ({ onRegisterClick }) => {
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+
   return (
-    <div className="bg-gradient-to-r from-orange-50 to-orange-100 py-16">
-      <div className="container mx-auto px-4">
-        <div className="bg-orange-500 text-white py-3 px-4 rounded-lg text-center mb-8">
-          <p className="text-lg md:text-xl font-bold">3000+ TRADERS MAKE {'>'} ₹4,00,000/YR</p>
-        </div>
-        
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+    <div className="min-h-screen bg-[#F8FAFC]">
+      {/* Top Banner */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-b-[2rem] px-4 py-6">
+        <h2 className="text-2xl md:text-3xl font-bold text-center text-white">
+          3000+ TRADERS MAKE RS. 400CR/YR
+        </h2>
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8">
+        {/* Hero Text Section */}
+        <div className="max-w-4xl mx-auto text-center mb-12">
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
             Grow, Automate & Scale<br />
-            your Stock Trading<br />
-            Business using<br />
-            <span className="text-orange-500">StockMastery!</span>
+            your Trading Career<br />
+            with<br />
+            <span className="text-blue-600">StockMastery!</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-gray-700 mb-8">
-            A <span className="underline decoration-orange-500">3-hour Trading Masterclass</span> to simplify
-            market analysis, executing profitable trades & building a consistent income stream.
+          <p className="text-xl md:text-2xl text-gray-600 mb-8">
+            A 3-hour Masterclass to master professional trading strategies,<br />
+            risk management, and consistent profit generation.
           </p>
-          
-          <div className="flex flex-col md:flex-row justify-center items-center gap-8 mb-12">
-            <img 
-              src="https://images.unsplash.com/photo-1531973576160-7125cd663d86" 
-              alt="Trading Expert" 
-              className="w-full md:w-1/2 max-w-md rounded-lg shadow-lg"
-            />
-            
-            <div className="w-full md:w-1/2 max-w-md space-y-6">
-              <div className="bg-white p-4 rounded-lg shadow flex items-center space-x-4">
-                <Calendar className="h-8 w-8 text-orange-500 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium text-gray-500">DATE</h3>
-                  <p className="text-xl font-bold">15 JUNE (SATURDAY)</p>
-                </div>
-              </div>
-              
-              <div className="bg-white p-4 rounded-lg shadow flex items-center space-x-4">
-                <Clock className="h-8 w-8 text-orange-500 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium text-gray-500">TIME</h3>
-                  <p className="text-xl font-bold">7 PM TO 10 PM</p>
-                </div>
-              </div>
-              
-              <div className="bg-white p-4 rounded-lg shadow flex items-center space-x-4">
-                <MapPin className="h-8 w-8 text-orange-500 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium text-gray-500">LOCATION</h3>
-                  <p className="text-xl font-bold">ZOOM</p>
-                </div>
-              </div>
-              
-              <div className="bg-white p-4 rounded-lg shadow flex items-center space-x-4">
-                <Gift className="h-8 w-8 text-orange-500 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium text-gray-500">BONUSES</h3>
-                  <p className="text-xl font-bold">MULTIPLE BONUSES INSIDE</p>
-                </div>
-              </div>
+        </div>
+
+        {/* Image Preview Section - Replacing Video Section */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <div className="bg-white rounded-2xl shadow-lg p-4">
+            <div className="aspect-video rounded-xl overflow-hidden relative">
+              {/* Hero Image */}
+              <img 
+                src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                alt="Professional trading desk with multiple monitors showing financial data"
+                className="w-full h-full object-cover"
+              />
+              {/* Overlay gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-blue-600/20"></div>
             </div>
           </div>
-          
-          <div className="mb-8">
-            <CountdownTimer />
-          </div>
-          
-          <button 
-            onClick={onRegisterClick}
-            className="bg-orange-500 hover:bg-orange-600 text-white text-xl font-bold py-4 px-8 rounded-full shadow-lg transition-all transform hover:scale-105"
+        </div>
+
+        {/* Bottom CTA Section */}
+        <div className="max-w-2xl mx-auto text-center">
+          <button
+            onClick={() => setShowPaymentModal(true)}
+            className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white text-xl md:text-2xl font-bold px-8 py-4 rounded-full transition-all transform hover:scale-105 shadow-lg mb-4"
           >
-            REGISTER NOW FOR JUST ₹4,999 ₹99/- »
+            REGISTER NOW FOR JUST RS. 99/- »
           </button>
           
-          <p className="text-orange-600 font-bold mt-4">Almost Full! Only 5 seats left!</p>
+          <div className="flex flex-col items-center space-y-2">
+            <div className="flex items-center space-x-2">
+              <span className="text-blue-600 font-semibold animate-pulse">
+                Almost Full
+              </span>
+              <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                Only 5 seats left!
+              </span>
+            </div>
+            <div className="flex items-center space-x-2 text-lg">
+              <span className="text-gray-400 line-through">₹4,999</span>
+              <span className="text-blue-600 font-bold">₹99 Only</span>
+            </div>
+          </div>
         </div>
       </div>
+
+      {showPaymentModal && <PaymentModal onClose={() => setShowPaymentModal(false)} />}
     </div>
   );
 };
